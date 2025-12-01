@@ -16,6 +16,7 @@ from .algorithms import kmeans, sklearn_kmeans
 from .evaluation import compute_inertia, elbow_curve, silhouette_score_sklearn
 from .plotting_clustered import plot_clusters_2d, plot_elbow
 from .data_exporter import export_to_csv
+from .agglomerative import agglomerative
 
 
 def run_clustering(
@@ -28,6 +29,8 @@ def run_clustering(
     random_state: Optional[int] = None,
     compute_elbow: bool = False,
     elbow_k_values: Optional[List[int]] = None,
+    linkage: Optional[str] = None,              
+    distance_threshold: Optional[float] = None,  
 ) -> Dict[str, Any]:
     """
     High-level function to run the full clustering workflow.
@@ -47,7 +50,7 @@ def run_clustering(
         Path to the input CSV file.
     feature_cols : list of str
         Names of feature columns to use.
-    algorithm : {"kmeans", "sklearn_kmeans"}, default "kmeans"
+    algorithm : {"kmeans", "sklearn_kmeans", "agglomerative"}, default "kmeans"
     k : int, default 3
         Number of clusters.
     standardise : bool, default True
@@ -87,8 +90,15 @@ def run_clustering(
         labels, centroids = kmeans(X, k=k, random_state=random_state)
     elif algorithm == "sklearn_kmeans":
         labels, centroids = sklearn_kmeans(X, k=k, random_state=random_state)
+    elif algorithm == "agglomerative":
+        labels, centroids = agglomerative(
+            X,
+            k=k,
+            linkage=linkage if linkage is not None else "ward",
+            distance_threshold=distance_threshold,
+        )
     else:
-        raise ValueError(f"Unknown algorithm '{algorithm}'. Use 'kmeans' or 'sklearn_kmeans'.")
+        raise ValueError(f"Unknown algorithm '{algorithm}'. Use 'kmeans', 'sklearn_kmeans' or 'agglomerative'.")
 
     # Compute metrics
     inertia = compute_inertia(X, labels, centroids)

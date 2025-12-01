@@ -32,6 +32,9 @@ from .algorithms import (
     update_centroids,
 )
 
+# --- Agglomerative clustering ---
+from .agglomerative import agglomerative
+
 # --- Evaluation ---
 from .evaluation import (
     compute_inertia,
@@ -70,6 +73,9 @@ __all__ = [
     "assign_clusters",
     "update_centroids",
 
+    # Agglomerative clustering
+    "agglomerative",
+    
     # Evaluation
     "compute_inertia",
     "silhouette_score_sklearn",
