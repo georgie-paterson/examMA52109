@@ -4,19 +4,6 @@
 ## December 2025
 ###
 
-"""
-simulated_clustering.py
------------------------
-
-Analysis script for the dataset `simulated_data.csv` using only the tools in the
-cluster_maker package.
-
-This script is intentionally *persuasive*: it guides the reader through the
-reasoning behind choosing a plausible number of clusters. It provides meaningful
-plots and clear narrative messages explaining what each step reveals about the
-data's structure.
-"""
-
 from __future__ import annotations
 
 import os
@@ -119,7 +106,8 @@ def main() -> None:
         silhouette = result["metrics"].get("silhouette", None)
 
         print(f"  → inertia = {inertia:.3f}  (lower = tighter clusters)")
-        print(f"  → silhouette = {silhouette:.3f}  (higher = clearer separation)")
+        sil_str = f"{silhouette:.3f}" if silhouette is not None else "N/A"
+        print(f"  → silhouette = {sil_str}  (higher = clearer separation)")
         print(f"  Saved k={k} cluster plot → {cluster_plot_path}\n")
 
         metrics_list.append({"k": k, "inertia": inertia, "silhouette": silhouette})

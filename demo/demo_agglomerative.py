@@ -4,23 +4,6 @@
 ## December 2025
 ##
 
-"""
-demo_agglomerative.py
----------------------
-
-Demonstration script for hierarchical agglomerative clustering using the
-cluster_maker package.
-
-This script:
-1) Loads difficult_dataset.csv
-2) Uses run_clustering() with algorithm="agglomerative"
-3) Tests several linkage methods
-4) Produces clear visualisations and printed explanations
-5) Helps the user decide which linkage gives the most meaningful clustering
-
-Outputs are saved in demo_output_agglomerative/.
-"""
-
 from __future__ import annotations
 
 import os
@@ -146,6 +129,11 @@ def main() -> None:
             "silhouette": silhouette,
         }
 
+        metrics_df = pd.DataFrame.from_dict(results, orient='index')
+        metrics_path = os.path.join(OUTPUT_DIR, "agglomerative_metrics.csv")
+        metrics_df.to_csv(metrics_path)
+        print(f"Saved metric summary → {metrics_path}\n")
+
     # ------------------------------------------------------------------
     # Select best linkage by silhouette score
     # ------------------------------------------------------------------
@@ -177,6 +165,8 @@ def main() -> None:
     print("perfectly recover ring-shaped groups.\n")
 
     print("Demo complete.\n")
+    print(f"All plots and labelled data saved in: {OUTPUT_DIR}\n")
+
 
 
 if __name__ == "__main__":
