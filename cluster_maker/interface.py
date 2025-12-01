@@ -62,6 +62,12 @@ def run_clustering(
     elbow_k_values : list of int or None, default None
         k-values for elbow curve. If None and compute_elbow is True, defaults
         to range 1..(k+5).
+    linkage : str or None, default None
+        Linkage strategy for agglomerative clustering ("ward", "complete",
+        "average", "single"). Defaults to "ward" if None.
+    distance_threshold : float or None, default None
+        Optional distance at which hierarchical merging should stop. If provided,
+        agglomerative clustering ignores the value of k.
 
     Returns
     -------
