@@ -45,6 +45,20 @@ def main() -> None:
     print("     AGGLOMERATIVE CLUSTERING DEMO (HIERARCHICAL)")
     print("======================================================\n")
 
+    print("This demonstration applies hierarchical agglomerative clustering")
+    print("to a challenging dataset containing four concentric ring-shaped")
+    print("groups. The aim is to illustrate how different linkage strategies")
+    print("behave on non-convex cluster shapes. The script will:")
+    print("  • load the dataset;")
+    print("  • try several linkage methods ('ward', 'complete', 'average');")
+    print("  • compute clustering quality metrics (inertia, silhouette);")
+    print("  • produce plots showing the resulting partitions;")
+    print("  • identify which linkage performs best by silhouette score.\n")
+    print("Because the clusters are ring-shaped, hierarchical methods cannot")
+    print("perfectly recover the true structure, but the comparison remains")
+    print("informative and demonstrates the algorithm's behaviour.\n")
+
+
     # ------------------------------------------------------------------
     # Load dataset
     # ------------------------------------------------------------------
@@ -57,7 +71,7 @@ def main() -> None:
 
     df = pd.read_csv(data_path)
 
-    # Use the first 2 numeric columns for 2D visualisation (consistent with k-means demos)
+    # Use the first 2 numeric columns for 2D visualisation
     numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
     if len(numeric_cols) < 2:
         print("ERROR: dataset must contain at least 2 numeric columns.")
@@ -94,7 +108,7 @@ def main() -> None:
     print(" - 'complete' → emphasises furthest distances")
     print(" - 'average'  → balanced merging method\n")
 
-    results = {}
+    results = {}   # will store metrics for each method
 
     for method in linkages:
         print(f"--- Running agglomerative clustering (linkage = '{method}') ---")
@@ -103,7 +117,7 @@ def main() -> None:
             input_path=data_path,
             feature_cols=feature_cols,
             algorithm="agglomerative",
-            k=4,                         # A sensible default for difficult_dataset
+            k=4,
             linkage=method,
             standardise=True,
             compute_elbow=False,
@@ -112,31 +126,55 @@ def main() -> None:
         )
 
         labels = result["labels"]
+        inertia = result["metrics"]["inertia"]
+        silhouette = result["metrics"]["silhouette"]
+
+        print(f"  Inertia:    {inertia:.3f}")
+        print(f"  Silhouette: {silhouette:.3f}\n")
+
+        # Save cluster plot
         fig = result["fig_cluster"]
         outpath = os.path.join(OUTPUT_DIR, f"clusters_{method}.png")
         fig.savefig(outpath, dpi=150)
         plt.close(fig)
 
         print(f"Saved cluster plot → {outpath}\n")
-        results[method] = labels
+
+        # Store metrics
+        results[method] = {
+            "inertia": inertia,
+            "silhouette": silhouette,
+        }
+
+    # ------------------------------------------------------------------
+    # Select best linkage by silhouette score
+    # ------------------------------------------------------------------
+    print("STEP 3: Selecting the best linkage method...\n")
+
+    best = max(results, key=lambda m: results[m]["silhouette"])
+    best_score = results[best]["silhouette"]
+
+    print(f"Best linkage method based on silhouette score:")
+    print(f" → '{best}'  (silhouette = {best_score:.3f})\n")
 
     # ------------------------------------------------------------------
     # Interpretation
     # ------------------------------------------------------------------
-    print("\n======================================================")
+    print("======================================================")
     print("      INTERPRETATION — WHICH LINKAGE WORKS BEST?")
     print("======================================================\n")
 
-    print("You should now examine the cluster plots saved in:")
-    print(f"   {OUTPUT_DIR}\n")
-    print("Typically:")
-    print(" • 'ward' produces tight, spherical clusters")
-    print(" • 'complete' separates clusters more aggressively")
-    print(" • 'average' can reveal elongated or flexible group shapes\n")
+    print("Agglomerative clustering is distance-based and therefore struggles")
+    print("to recover non-convex shapes such as the concentric rings present")
+    print("in this dataset. This is not an implementation error but a known")
+    print("limitation of hierarchical clustering methods.\n")
 
-    print("By visually comparing the three plots, you can determine which")
-    print("linkage method reveals the clearest and most natural grouping")
-    print("structure in the difficult dataset.\n")
+    print("Among the tested options, the silhouette metric selected:")
+    print(f" • Best method: '{best}'\n")
+
+    print("Complete and average linkage typically behave more sensibly than")
+    print("ward linkage on irregular or curved clusters, though none can")
+    print("perfectly recover ring-shaped groups.\n")
 
     print("Demo complete.\n")
 
